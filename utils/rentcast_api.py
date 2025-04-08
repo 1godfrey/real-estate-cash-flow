@@ -35,6 +35,7 @@ def get_rent_estimate(zip_code: str, bedrooms: int) -> Optional[float]:
     # Try different property types to increase chances of getting data
     property_types = ["SFH", "MFH", "CONDO"]
     
+    # First, try with the exact bedroom count provided
     for prop_type in property_types:
         try:
             querystring = {
@@ -66,8 +67,48 @@ def get_rent_estimate(zip_code: str, bedrooms: int) -> Optional[float]:
             logging.warning(f"Error for {prop_type}: {str(e)}")
             continue
     
+    # If no results with the exact bedroom count, try with other bedroom counts
+    # Some ZIP codes may have data for certain bedroom counts but not others
+    other_bedroom_counts = [2, 3, 4, 1, 5]  # Try common ones first
+    other_bedroom_counts = [b for b in other_bedroom_counts if b != capped_bedrooms]  # Remove current one
+    
+    all_tried_bedrooms = [capped_bedrooms] + other_bedroom_counts
+    logging.info(f"No data found for {zip_code} with {bedrooms} BR, trying other bedroom counts: {', '.join(map(str, other_bedroom_counts))}")
+    
+    for alt_bedrooms in other_bedroom_counts:
+        for prop_type in property_types:
+            try:
+                querystring = {
+                    "zip": zip_code,
+                    "bedrooms": str(alt_bedrooms),
+                    "propertyType": prop_type
+                }
+                
+                logging.debug(f"Trying alternative: ZIP {zip_code}, {alt_bedrooms} BR, type {prop_type}")
+                response = requests.get(url, headers=headers, params=querystring)
+                
+                if response.status_code == 404:
+                    continue
+                    
+                if response.status_code != 200:
+                    continue
+                    
+                data = response.json()
+                
+                if "rent" in data and data["rent"]:
+                    rent_value = float(data["rent"])
+                    # Adjust the rent value based on bedroom differences
+                    bedroom_diff = capped_bedrooms - alt_bedrooms
+                    adjusted_rent = rent_value + (bedroom_diff * 200)  # Approximate $200 per bedroom
+                    
+                    logging.info(f"Found rent for {alt_bedrooms} BR: ${rent_value}, adjusted for {capped_bedrooms} BR: ${adjusted_rent}")
+                    return adjusted_rent
+                    
+            except Exception:
+                continue
+    
     # If we get here, we tried all property types and didn't find rent data
-    logging.warning(f"No rent data found for ZIP {zip_code}, {bedrooms} bedrooms")
+    logging.info(f"No RentCast API data found for ZIP {zip_code}, {bedrooms} bedrooms - using fallback estimates")
     
     # As a fallback, use a conservative estimate based on national averages
     # This is better than no data at all for calculation purposes
@@ -80,5 +121,6 @@ def get_rent_estimate(zip_code: str, bedrooms: int) -> Optional[float]:
     }
     
     # Default to 2BR if outside the range
-    logging.info(f"Using fallback national average rent for {zip_code}, {bedrooms} BR")
-    return fallback_rents.get(capped_bedrooms, fallback_rents[2])
+    rent_estimate = fallback_rents.get(capped_bedrooms, fallback_rents[2])
+    logging.info(f"Using fallback national average rent for {zip_code}, {bedrooms} BR: ${rent_estimate}")
+    return rent_estimate

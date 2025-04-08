@@ -26,8 +26,9 @@ def get_zillow_listings(zip_code: str) -> List[Dict[str, Any]]:
     
     querystring = {
         "location": zip_code,
-        "home_type": "Houses",  # We'll filter further in code
-        "sort": "Price_Low_High"
+        "home_type": "All",  # More inclusive to show all property types
+        "sort": "Price_Low_High",
+        "page": "1"
     }
     
     headers = {

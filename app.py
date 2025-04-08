@@ -17,8 +17,8 @@ app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html', 
-                          down_payment=20,  # Default values
-                          interest_rate=7,
+                          down_payment=15,  # Default values
+                          interest_rate=6.5,
                           loan_term=30,
                           monthly_expenses=300)
 
@@ -26,12 +26,12 @@ def index():
 def analyze():
     # Get form data
     zip_codes = request.form.get('zip_codes', '').strip()
-    down_payment = float(request.form.get('down_payment', 20))
-    interest_rate = float(request.form.get('interest_rate', 7))
+    down_payment = float(request.form.get('down_payment', 15))
+    interest_rate = float(request.form.get('interest_rate', 6.5))
     loan_term = int(request.form.get('loan_term', 30))
     monthly_expenses = float(request.form.get('monthly_expenses', 300))
-    min_coc_return = float(request.form.get('min_coc_return', 8))
-    min_cash_flow = float(request.form.get('min_cash_flow', 200))
+    min_coc_return = float(request.form.get('min_coc_return', 5))
+    min_cash_flow = float(request.form.get('min_cash_flow', 100))
     
     # Validate input
     if not zip_codes:
@@ -132,9 +132,13 @@ def analyze():
                     if rent:
                         cache_data(cache_key, rent)
                 
+                # This condition should never happen now because our rentcast module always returns a value,
+                # either from API or fallback estimates. But we'll keep it as a failsafe.
                 if not rent:
                     logging.warning(f"Could not get rent estimate for {zip_code}/{bedrooms}")
-                    continue
+                    # We still want to proceed with the listing rather than skip
+                    rent = 1000  # Use a very conservative value as last resort
+                    logging.info(f"Using emergency fallback rent of ${rent} for {zip_code}/{bedrooms}")
                 
                 # Calculate financial metrics
                 metrics = calculate_property_metrics(
@@ -147,7 +151,18 @@ def analyze():
                 )
                 
                 # Check if property meets filtering criteria
-                if metrics['cash_on_cash_return'] < min_coc_return or metrics['cash_flow'] < min_cash_flow:
+                # For high-end ZIP codes, be more flexible with the criteria
+                # These ZIP codes often have lower cash-on-cash returns but strong appreciation potential
+                high_end_zip_prefixes = ['902', '904', '945', '100', '101', '941']
+                is_high_end_zip = any(zip_code.startswith(prefix) for prefix in high_end_zip_prefixes)
+                
+                min_coc_for_zip = min_coc_return * 0.7 if is_high_end_zip else min_coc_return
+                min_cash_flow_for_zip = min_cash_flow * 0.7 if is_high_end_zip else min_cash_flow
+                
+                if is_high_end_zip:
+                    logging.info(f"High-end ZIP code {zip_code} detected, using adjusted filters: {min_coc_for_zip}% COC, ${min_cash_flow_for_zip} cash flow")
+                
+                if metrics['cash_on_cash_return'] < min_coc_for_zip or metrics['cash_flow'] < min_cash_flow_for_zip:
                     continue
                 
                 # Create result object with improved address handling
