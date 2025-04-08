@@ -41,13 +41,13 @@ def get_zillow_listings(zip_code: str) -> List[Dict[str, Any]]:
         
         data = response.json()
         
-        if "props" not in data or not data["props"]:
+        if not data or not isinstance(data, list):
             logging.warning(f"No properties found for ZIP code {zip_code}")
             return []
         
         # Filter for single-family and multifamily properties
         filtered_listings = []
-        for prop in data["props"]:
+        for prop in data:
             home_type = prop.get('homeType', '').lower()
             if 'single' in home_type or 'multi' in home_type:
                 filtered_listings.append(prop)
