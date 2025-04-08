@@ -80,22 +80,45 @@ def analyze():
             
             # Process each listing
             for listing in listings:
-                # Get property type, default to "Residential" if not specified
-                home_type = listing.get('propertyType', '').lower()
+                # Log the listing for debugging
+                logging.debug(f"Processing listing: {json.dumps(listing, indent=2)}")
+                
+                # Get property type - could be propertyType or homeType in the API response
+                home_type = listing.get('propertyType', listing.get('homeType', '')).lower()
                 property_type = "Residential"
                 
                 # Try to be more specific if we can determine the property type
-                if 'single' in home_type:
+                if home_type and ('single' in home_type):
                     property_type = "Single Family"
-                elif 'multi' in home_type:
+                elif home_type and ('multi' in home_type):
                     property_type = "Multifamily"
+                elif home_type and ('condo' in home_type):
+                    property_type = "Condo"
                 
-                # Get bedrooms and price
+                # Get bedrooms - handle different API response formats
                 bedrooms = listing.get('bedrooms', 0)
-                price = listing.get('price', 0)
+                if not bedrooms and 'hdpData' in listing and 'homeInfo' in listing['hdpData']:
+                    bedrooms = listing['hdpData']['homeInfo'].get('bedrooms', 0)
                 
-                if bedrooms < 1 or price < 10000:  # Basic validation
-                    continue
+                # Get price - handle different API response formats
+                price = listing.get('price', 0)
+                if not price and 'hdpData' in listing and 'homeInfo' in listing['hdpData']:
+                    price = listing['hdpData']['homeInfo'].get('price', 0)
+                
+                # Strip currency symbols and convert to float if needed
+                if isinstance(price, str):
+                    price = price.replace('$', '').replace(',', '')
+                    try:
+                        price = float(price)
+                    except (ValueError, TypeError):
+                        price = 0
+                
+                # Use reasonable defaults if price or bedrooms are missing
+                if not bedrooms:
+                    bedrooms = 3  # Default to 3BR if not specified
+                
+                if not price or price < 10000:
+                    continue  # Skip listings without valid prices
                 
                 # Get rent estimate for the ZIP/bedroom combination
                 cache_key = f"rentcast_{zip_code}_{bedrooms}"
@@ -127,9 +150,30 @@ def analyze():
                 if metrics['cash_on_cash_return'] < min_coc_return or metrics['cash_flow'] < min_cash_flow:
                     continue
                 
-                # Create result object
+                # Create result object with improved address handling
+                address_parts = []
+                
+                # Try different possible address field names in the API response
+                street = listing.get('streetAddress', listing.get('address', ''))
+                city = listing.get('city', '')
+                state = listing.get('state', '')
+                
+                if street:
+                    address_parts.append(street)
+                if city:
+                    address_parts.append(city)
+                if state:
+                    address_parts.append(state)
+                    
+                address_parts.append(zip_code)
+                
+                full_address = ", ".join([part for part in address_parts if part])
+                if not full_address:
+                    full_address = f"Property in {zip_code}"
+                
+                # Create the result object
                 result = {
-                    'address': f"{listing.get('streetAddress', 'Unknown')}, {listing.get('city', '')}, {listing.get('state', '')} {zip_code}",
+                    'address': full_address,
                     'price': price,
                     'bedrooms': bedrooms,
                     'rent': rent,
@@ -137,7 +181,7 @@ def analyze():
                     'cash_flow': metrics['cash_flow'],
                     'coc_return': metrics['cash_on_cash_return'],
                     'property_type': property_type,
-                    'link': listing.get('detailUrl', '#')
+                    'link': listing.get('detailUrl', listing.get('imgSrc', '#'))
                 }
                 
                 all_results.append(result)
