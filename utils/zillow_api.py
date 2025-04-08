@@ -41,24 +41,23 @@ def get_zillow_listings(zip_code: str) -> List[Dict[str, Any]]:
         
         data = response.json()
         
-        if not data or not isinstance(data, list):
+        # Check if we have properties in the response
+        if "props" not in data or not data["props"]:
             logging.warning(f"No properties found for ZIP code {zip_code}")
             return []
         
-        # Filter for single-family and multifamily properties
-        filtered_listings = []
-        for prop in data:
-            home_type = prop.get('homeType', '').lower()
-            if 'single' in home_type or 'multi' in home_type:
-                filtered_listings.append(prop)
-        
-        logging.debug(f"Found {len(filtered_listings)} valid properties in ZIP {zip_code}")
-        return filtered_listings
+        # Accept all property types to be more inclusive
+        properties = data["props"]
+        logging.debug(f"Found {len(properties)} properties in ZIP {zip_code}")
+        return properties
         
     except requests.exceptions.RequestException as e:
         logging.error(f"Error fetching Zillow data for ZIP {zip_code}: {str(e)}")
-        if hasattr(e.response, 'text'):
-            logging.error(f"API response: {e.response.text}")
+        try:
+            if e.response:
+                logging.error(f"API response: {e.response.text}")
+        except:
+            logging.error("Unable to get response details")
         return []
     except (json.JSONDecodeError, KeyError) as e:
         logging.error(f"Error parsing Zillow API response for ZIP {zip_code}: {str(e)}")

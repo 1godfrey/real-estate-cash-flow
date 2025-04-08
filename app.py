@@ -80,12 +80,15 @@ def analyze():
             
             # Process each listing
             for listing in listings:
-                # Skip non-single family and non-multifamily properties
-                home_type = listing.get('homeType', '').lower()
-                if 'single' not in home_type and 'multi' not in home_type:
-                    continue
+                # Get property type, default to "Residential" if not specified
+                home_type = listing.get('propertyType', '').lower()
+                property_type = "Residential"
                 
-                property_type = "Single Family" if "single" in home_type.lower() else "Multifamily"
+                # Try to be more specific if we can determine the property type
+                if 'single' in home_type:
+                    property_type = "Single Family"
+                elif 'multi' in home_type:
+                    property_type = "Multifamily"
                 
                 # Get bedrooms and price
                 bedrooms = listing.get('bedrooms', 0)
