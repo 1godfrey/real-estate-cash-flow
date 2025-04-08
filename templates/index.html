@@ -1,79 +1,132 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card shadow-sm">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0"><i class="bi bi-search me-2"></i>Find Cash-Flowing Rental Properties</h4>
+<div style="display: flex; justify-content: center;">
+    <div style="max-width: 800px; width: 100%;">
+        <div class="card">
+            <div style="background-color: hsl(var(--primary)); color: hsl(var(--primary-foreground)); padding: 1rem; border-top-left-radius: var(--radius); border-top-right-radius: var(--radius);">
+                <h2 style="margin: 0; font-size: 1.25rem; display: flex; align-items: center;">
+                    <i class="bi bi-search" style="margin-right: 0.5rem;"></i>Find Cash-Flowing Rental Properties
+                </h2>
             </div>
-            <div class="card-body">
+            <div style="padding: 1.5rem;">
                 <form action="{{ url_for('analyze') }}" method="POST">
-                    <div class="mb-4">
-                        <h5>ZIP Codes</h5>
-                        <div class="form-group mb-3">
+                    <div style="margin-bottom: 1.5rem;">
+                        <h3 style="font-size: 1.125rem; margin-bottom: 0.75rem;">ZIP Codes</h3>
+                        <div style="margin-bottom: 1rem;">
                             <label for="zip_codes" class="form-label">Enter ZIP codes (one per line or comma-separated)</label>
-                            <textarea class="form-control" id="zip_codes" name="zip_codes" rows="5" required placeholder="e.g. 90210&#10;32789&#10;60611"></textarea>
-                            <div class="form-text">You can enter up to 300 ZIP codes at once.</div>
+                            <textarea 
+                                style="width: 100%; padding: 0.75rem; border-radius: var(--radius); border: 1px solid hsl(var(--input)); background-color: transparent; color: hsl(var(--foreground));" 
+                                id="zip_codes" 
+                                name="zip_codes" 
+                                rows="5" 
+                                required 
+                                placeholder="e.g. 90210&#10;32789&#10;60611"></textarea>
+                            <div style="font-size: 0.875rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">You can enter up to 300 ZIP codes at once.</div>
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <h5>Mortgage Parameters</h5>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
+                    <div style="margin-bottom: 1.5rem;">
+                        <h3 style="font-size: 1.125rem; margin-bottom: 0.75rem;">Mortgage Parameters</h3>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                            <div>
                                 <label for="down_payment" class="form-label">Down Payment (%)</label>
-                                <input type="number" class="form-control" id="down_payment" name="down_payment" value="{{ down_payment|default(15) }}" min="1" max="100">
+                                <input 
+                                    type="number" 
+                                    style="width: 100%; padding: 0.5rem; border-radius: var(--radius); border: 1px solid hsl(var(--input)); background-color: transparent; color: hsl(var(--foreground));" 
+                                    id="down_payment" 
+                                    name="down_payment" 
+                                    value="{{ down_payment|default(15) }}" 
+                                    min="1" 
+                                    max="100">
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div>
                                 <label for="interest_rate" class="form-label">Interest Rate (%)</label>
-                                <input type="number" class="form-control" id="interest_rate" name="interest_rate" value="{{ interest_rate|default(6.5) }}" min="0.1" max="20" step="0.1">
+                                <input 
+                                    type="number" 
+                                    style="width: 100%; padding: 0.5rem; border-radius: var(--radius); border: 1px solid hsl(var(--input)); background-color: transparent; color: hsl(var(--foreground));" 
+                                    id="interest_rate" 
+                                    name="interest_rate" 
+                                    value="{{ interest_rate|default(6.5) }}" 
+                                    min="0.1" 
+                                    max="20" 
+                                    step="0.1">
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div>
                                 <label for="loan_term" class="form-label">Loan Term (years)</label>
-                                <input type="number" class="form-control" id="loan_term" name="loan_term" value="{{ loan_term|default(30) }}" min="1" max="50">
+                                <input 
+                                    type="number" 
+                                    style="width: 100%; padding: 0.5rem; border-radius: var(--radius); border: 1px solid hsl(var(--input)); background-color: transparent; color: hsl(var(--foreground));" 
+                                    id="loan_term" 
+                                    name="loan_term" 
+                                    value="{{ loan_term|default(30) }}" 
+                                    min="1" 
+                                    max="50">
                             </div>
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <h5>Property Expenses</h5>
-                        <div class="form-group mb-3">
+                    <div style="margin-bottom: 1.5rem;">
+                        <h3 style="font-size: 1.125rem; margin-bottom: 0.75rem;">Property Expenses</h3>
+                        <div style="margin-bottom: 1rem;">
                             <label for="monthly_expenses" class="form-label">Monthly Expenses ($)</label>
-                            <input type="number" class="form-control" id="monthly_expenses" name="monthly_expenses" value="{{ monthly_expenses|default(300) }}" min="0">
-                            <div class="form-text">Include property taxes, insurance, maintenance, etc.</div>
+                            <input 
+                                type="number" 
+                                style="width: 100%; padding: 0.5rem; border-radius: var(--radius); border: 1px solid hsl(var(--input)); background-color: transparent; color: hsl(var(--foreground));" 
+                                id="monthly_expenses" 
+                                name="monthly_expenses" 
+                                value="{{ monthly_expenses|default(300) }}" 
+                                min="0">
+                            <div style="font-size: 0.875rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Include property taxes, insurance, maintenance, etc.</div>
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <h5>Filter Criteria</h5>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
+                    <div style="margin-bottom: 1.5rem;">
+                        <h3 style="font-size: 1.125rem; margin-bottom: 0.75rem;">Filter Criteria</h3>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                            <div>
                                 <label for="min_coc_return" class="form-label">Minimum Cash-on-Cash Return (%)</label>
-                                <input type="number" class="form-control" id="min_coc_return" name="min_coc_return" value="5" min="0" step="0.1">
+                                <input 
+                                    type="number" 
+                                    style="width: 100%; padding: 0.5rem; border-radius: var(--radius); border: 1px solid hsl(var(--input)); background-color: transparent; color: hsl(var(--foreground));" 
+                                    id="min_coc_return" 
+                                    name="min_coc_return" 
+                                    value="5" 
+                                    min="0" 
+                                    step="0.1">
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div>
                                 <label for="min_cash_flow" class="form-label">Minimum Monthly Cash Flow ($)</label>
-                                <input type="number" class="form-control" id="min_cash_flow" name="min_cash_flow" value="100" min="0">
+                                <input 
+                                    type="number" 
+                                    style="width: 100%; padding: 0.5rem; border-radius: var(--radius); border: 1px solid hsl(var(--input)); background-color: transparent; color: hsl(var(--foreground));" 
+                                    id="min_cash_flow" 
+                                    name="min_cash_flow" 
+                                    value="100" 
+                                    min="0">
                             </div>
                         </div>
                     </div>
 
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="bi bi-search me-2"></i>Find Properties
+                    <div>
+                        <button 
+                            type="submit" 
+                            style="width: 100%; background-color: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border: none; border-radius: var(--radius); padding: 0.75rem 1rem; font-size: 1rem; font-weight: 500; cursor: pointer; display: flex; justify-content: center; align-items: center;">
+                            <i class="bi bi-search" style="margin-right: 0.5rem;"></i>Find Properties
                         </button>
                     </div>
                 </form>
             </div>
-            <div class="card-footer bg-light">
-                <div class="alert alert-info mb-0">
-                    <h5><i class="bi bi-info-circle me-2"></i>How it works:</h5>
-                    <ol>
-                        <li>Enter ZIP codes where you want to search for properties</li>
-                        <li>Set your mortgage parameters and expenses</li>
-                        <li>Define your minimum cash flow and return targets</li>
-                        <li>The tool will search Zillow listings and calculate returns based on RentCast data</li>
+            <div style="padding: 1.5rem; background-color: hsl(var(--secondary) / 0.5); border-bottom-left-radius: var(--radius); border-bottom-right-radius: var(--radius);">
+                <div style="background-color: hsl(var(--primary) / 0.1); border: 1px solid hsl(var(--primary) / 0.2); border-radius: var(--radius); padding: 1rem; color: hsl(var(--foreground));">
+                    <h3 style="font-size: 1.125rem; margin-bottom: 0.75rem; display: flex; align-items: center;">
+                        <i class="bi bi-info-circle" style="margin-right: 0.5rem;"></i>How it works:
+                    </h3>
+                    <ol style="margin: 0; padding-left: 1.5rem;">
+                        <li style="margin-bottom: 0.5rem;">Enter ZIP codes where you want to search for properties</li>
+                        <li style="margin-bottom: 0.5rem;">Set your mortgage parameters and expenses</li>
+                        <li style="margin-bottom: 0.5rem;">Define your minimum cash flow and return targets</li>
+                        <li style="margin-bottom: 0.5rem;">The tool will find properties that meet your investment criteria</li>
                         <li>Results can be exported to CSV</li>
                     </ol>
                 </div>
