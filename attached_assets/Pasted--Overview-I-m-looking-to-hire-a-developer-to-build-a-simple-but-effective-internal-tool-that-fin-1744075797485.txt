@@ -1,0 +1,90 @@
+✍️ Overview:
+I’m looking to hire a developer to build a simple but effective internal tool that finds cash-flowing rental properties based on Zillow listings and RentCast rent estimates.
+
+This will be a private-use tool (not a public product) that helps me shortlist investable rental properties to feature in my newsletter. I do not know how to code, so it must be easy to use.
+
+🎯 Goal:
+Build a user-friendly tool that helps me quickly find 1–4 unit properties in any U.S. ZIP code with 8%+ cash-on-cash return and positive monthly cash flow, using basic filters.
+
+🧩 Data Sources:
+Zillow API (via RapidAPI) – For active listings, prices, bedrooms, addresses, etc.
+
+RentCast API (Pro Plan) – For ZIP-level average rent by bedroom count
+
+🧠 Business Logic:
+The tool should:
+
+Accept a batch list of ZIP codes (e.g., 100–300 ZIPs at once)
+
+Pull active Zillow listings from each ZIP (single-family + 2–4 units only)
+
+For each listing:
+
+Get price + bedroom count
+
+Use RentCast to estimate average rent for that ZIP/bedroom combo
+
+Estimate:
+
+Monthly mortgage (see adjustable settings below)
+
+Monthly expenses (default to $300, or make configurable)
+
+Monthly cash flow (rent – mortgage – expenses)
+
+Cash-on-cash return (%)
+
+Filter results by:
+
+CoC return (e.g. 8%+)
+
+Cash flow (e.g. $200+/mo)
+
+Output results to:
+
+CSV file (downloadable)
+
+(Optional: Google Sheet or lightweight web UI)
+
+🔧 Adjustable Settings:
+Please make the following mortgage assumptions configurable (via UI, web form, or config file):
+
+Down payment % (default: 20%)
+
+Interest rate (default: 7%)
+
+Loan term (years, default: 30)
+
+Monthly expenses (default: $300)
+
+💡 Output Format (example row):
+Address Price Beds Rent Mortgage Cash Flow CoC Return Property Type Link
+📂 Input Method:
+I will paste or upload a batch of ZIP codes (100–300 at a time)
+
+Tool should loop through each and return filtered results
+
+This batch-style workflow is the primary use case
+
+🏠 Property Type Logic:
+Add a column for Property Type with only two values: Single Family or Multifamily
+
+Use Zillow’s homeType or similar fields:
+
+homeType == "SingleFamily" → tag as Single Family
+
+homeType == "MultiFamily" → tag as Multifamily
+
+Ignore other property types (condos, townhomes, land, etc.)
+
+🌐 API Plans Being Used:
+Zillow API: Using the free tier on RapidAPI (up to 500 requests/month)
+
+RentCast API: Using the Pro Plan ($74/month), which includes 1,000 ZIP-level rent requests/month
+
+Please implement ZIP-level caching for 30 days to reduce unnecessary API calls
+
+🔄 Workflow:
+MVP first: batch ZIP input → ROI filtering → clean CSV output
+
+Potential Phase 2: visual dashboard or property-level deep links
