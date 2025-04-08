@@ -156,14 +156,23 @@ def analyze():
                 high_end_zip_prefixes = ['902', '904', '945', '100', '101', '941']
                 is_high_end_zip = any(zip_code.startswith(prefix) for prefix in high_end_zip_prefixes)
                 
-                min_coc_for_zip = min_coc_return * 0.7 if is_high_end_zip else min_coc_return
-                min_cash_flow_for_zip = min_cash_flow * 0.7 if is_high_end_zip else min_cash_flow
+                # Use much more lenient criteria for high-end areas, since they're often
+                # more focused on appreciation than cash flow
+                min_coc_for_zip = min_coc_return * 0.5 if is_high_end_zip else min_coc_return
+                min_cash_flow_for_zip = min_cash_flow * 0.5 if is_high_end_zip else min_cash_flow
                 
                 if is_high_end_zip:
                     logging.info(f"High-end ZIP code {zip_code} detected, using adjusted filters: {min_coc_for_zip}% COC, ${min_cash_flow_for_zip} cash flow")
-                
-                if metrics['cash_on_cash_return'] < min_coc_for_zip or metrics['cash_flow'] < min_cash_flow_for_zip:
-                    continue
+                    # For high-end areas, we want to see at least some properties, even with negative cash flow
+                    # but only show properties with at least half the required cash-on-cash return
+                    if metrics['cash_on_cash_return'] < min_coc_for_zip:
+                        logging.info(f"Skipping property in {zip_code} - CoC too low: {metrics['cash_on_cash_return']}% < {min_coc_for_zip}%")
+                        continue
+                else:
+                    # For regular areas, apply normal filtering
+                    if metrics['cash_on_cash_return'] < min_coc_for_zip or metrics['cash_flow'] < min_cash_flow_for_zip:
+                        logging.info(f"Skipping property in {zip_code} - doesn't meet criteria: CoC {metrics['cash_on_cash_return']}%, CF ${metrics['cash_flow']}")
+                        continue
                 
                 # Create result object with improved address handling
                 address_parts = []
