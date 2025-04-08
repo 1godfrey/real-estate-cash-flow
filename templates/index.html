@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-search me-2"></i>Find Cash-Flowing Rental Properties</h4>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('analyze') }}" method="POST">
+                    <div class="mb-4">
+                        <h5>ZIP Codes</h5>
+                        <div class="form-group mb-3">
+                            <label for="zip_codes" class="form-label">Enter ZIP codes (one per line or comma-separated)</label>
+                            <textarea class="form-control" id="zip_codes" name="zip_codes" rows="5" required placeholder="e.g. 90210&#10;32789&#10;60611"></textarea>
+                            <div class="form-text">You can enter up to 300 ZIP codes at once.</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5>Mortgage Parameters</h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="down_payment" class="form-label">Down Payment (%)</label>
+                                <input type="number" class="form-control" id="down_payment" name="down_payment" value="{{ down_payment|default(20) }}" min="1" max="100">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="interest_rate" class="form-label">Interest Rate (%)</label>
+                                <input type="number" class="form-control" id="interest_rate" name="interest_rate" value="{{ interest_rate|default(7) }}" min="0.1" max="20" step="0.1">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="loan_term" class="form-label">Loan Term (years)</label>
+                                <input type="number" class="form-control" id="loan_term" name="loan_term" value="{{ loan_term|default(30) }}" min="1" max="50">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5>Property Expenses</h5>
+                        <div class="form-group mb-3">
+                            <label for="monthly_expenses" class="form-label">Monthly Expenses ($)</label>
+                            <input type="number" class="form-control" id="monthly_expenses" name="monthly_expenses" value="{{ monthly_expenses|default(300) }}" min="0">
+                            <div class="form-text">Include property taxes, insurance, maintenance, etc.</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5>Filter Criteria</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="min_coc_return" class="form-label">Minimum Cash-on-Cash Return (%)</label>
+                                <input type="number" class="form-control" id="min_coc_return" name="min_coc_return" value="8" min="0" step="0.1">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="min_cash_flow" class="form-label">Minimum Monthly Cash Flow ($)</label>
+                                <input type="number" class="form-control" id="min_cash_flow" name="min_cash_flow" value="200" min="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-search me-2"></i>Find Properties
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer bg-light">
+                <div class="alert alert-info mb-0">
+                    <h5><i class="bi bi-info-circle me-2"></i>How it works:</h5>
+                    <ol>
+                        <li>Enter ZIP codes where you want to search for properties</li>
+                        <li>Set your mortgage parameters and expenses</li>
+                        <li>Define your minimum cash flow and return targets</li>
+                        <li>The tool will search Zillow listings and calculate returns based on RentCast data</li>
+                        <li>Results can be exported to CSV</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+/* Custom styles for the application */
+
+/* Add some spacing */
+body {
+    padding-bottom: 2rem;
+}
+
+/* Add some subtle styling */
+.card {
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.card-header {
+    border-bottom: 0;
+}
+
+.table-responsive {
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+/* Improve readability of the form */
+textarea, input {
+    font-size: 1rem !important;
+}
+
+/* Footer styling */
+.footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+}
+
+/* Make badges a bit larger */
+.badge {
+    font-size: 90%;
+    padding: 0.35em 0.65em;
+}
+
+/* Improve sorting indicators in tables */
+table.dataTable thead .sorting:after,
+table.dataTable thead .sorting_asc:after,
+table.dataTable thead .sorting_desc:after {
+    top: 0.5em !important;
+}
+
+/* Improve DataTables integration */
+.dataTables_wrapper .dataTables_length, 
+.dataTables_wrapper .dataTables_filter, 
+.dataTables_wrapper .dataTables_info, 
+.dataTables_wrapper .dataTables_processing, 
+.dataTables_wrapper .dataTables_paginate {
+    margin-bottom: 1rem;
+    color: var(--bs-body-color) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    color: var(--bs-body-color) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: var(--bs-primary) !important;
+    color: white !important;
+    border: none !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: var(--bs-secondary) !important;
+    color: white !important;
+    border: none !important;
+}
