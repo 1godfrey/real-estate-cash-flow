@@ -19,6 +19,6 @@ jobs:
     steps:
       - name: Trigger Replit App
         run: |
-          curl -X POST "https://${{ secrets.REPLIT_URL }}/analyze" \
+          curl -X POST "${{ secrets.REPLIT_URL }}/analyze" \
           -H "Content-Type: application/x-www-form-urlencoded" \
           -d "zip_codes=${{ github.event.inputs.zip_codes }}&down_payment=${{ github.event.inputs.down_payment }}&interest_rate=6.5&loan_term=30&monthly_expenses=300&min_coc_return=5&min_cash_flow=100"
